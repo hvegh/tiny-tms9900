@@ -37,7 +37,7 @@ Forked from https://github.com/Speccery/tiny-tms9900
 Reconfigured the system using migen/Litex build system
 
 Tests:
-'''
+```
 Info: Device utilisation:      noram/norom        32kb ram/norom    32kb ram/8kb rom
 Info: 	       TRELLIS_SLICE:  1249/12144    10%  1626/12144    13  1672/12144    13% %
 Info: 	          TRELLIS_IO:     3/  197     1%     3/  197     1     3/  197     1% %
@@ -64,4 +64,4 @@ Info: 	              DDRDLL:     0/    4     0%     0/    4     0     0/    4   
 Info: 	             DQSBUFM:     0/    8     0%     0/    8     0     0/    8     0% %
 Info: 	     TRELLIS_ECLKBUF:     0/    8     0%     0/    8     0     0/    8     0% %
 Info: 	        ECLKBRIDGECS:     0/    2     0%     0/    2     0     0/    2     0% %
-'''
+```
