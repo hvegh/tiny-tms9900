@@ -22,3 +22,14 @@ top.asc: top.json upduino.pcf
 top.bin: top.asc
 	icepack top.asc top.bin
 
+
+#
+# Stuff for the ecp5 port with migen/litex framework
+#
+build/top.bit: $(VERILOGS) top.py
+	python top.py --build
+
+
+flash: build/top.bit
+	openFPGALoader -c ft232 $<
+

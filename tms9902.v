@@ -8,6 +8,7 @@
 //
 
 module tms9902 (CLK, nRTS, nDSR, nCTS, nINT, nCE, CRUOUT, CRUIN, CRUCLK, XOUT, RIN, S);
+  parameter CLK_FREQ = 12;
 
   output nRTS, nINT, CRUIN, XOUT;
   input  CLK, nDSR, nCTS, nCE, CRUOUT, CRUCLK, RIN;
@@ -25,7 +26,7 @@ module tms9902 (CLK, nRTS, nDSR, nCTS, nINT, nCE, CRUOUT, CRUIN, CRUCLK, XOUT, R
   // CLOCK DIVIDER
   // ==========================================================================
 
-  `define MHz 12
+  `define MHz CLK_FREQ
   reg    [5:0] clkctr_q = 0, clkctr_d;
   wire   bitclk;
   
