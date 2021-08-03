@@ -42,7 +42,6 @@ Tasks TODO
 - add tms9901
 - add tms9918a
 
-<<<<<<< HEAD
 Tasks DONE
 ----------
 - top.py
@@ -52,13 +51,13 @@ Tasks DONE
 
 1. Install Python 3.6+ and FPGA vendor's development tools and/or [Verilator](http://www.veripool.org/):
 
-'''sh
+```sh
 $ git clone https://github.com/verilator/verilator
 $ cd verilator
 $ autoconf        # Create ./configure script
 $ ./configure     # Configure and create Makefile
 $ make -j         # Build Verilator itself
-'''
+```
 
 2. Install Migen/LiteX and the LiteX's cores:
 
@@ -74,17 +73,17 @@ $ ./litex_setup.py update
 
 3. Buid the bitstream:
 
-'''sh
+```sh
 $ git clone https://github.com/hvegh/tiny-tms9900.git
 $ cd tiny-tms9900
 $ python top.py --build
-'''
+```
 
 # Results
 
 Current utilisation for 32KB ram, 8 KB rom, tms9900 and tms9902:
 ----------------------------------------------------------------
-'''
+```
 Info: Device utilisation:
 Info: 	       TRELLIS_SLICE:  1641/12144    13%
 Info: 	          TRELLIS_IO:     3/  197     1%
@@ -113,35 +112,4 @@ Info: 	     TRELLIS_ECLKBUF:     0/    8     0%
 Info: 	        ECLKBRIDGECS:     0/    2     0%
 
 Info: Max frequency for clock '$glbnet$clk25$TRELLIS_IO_IN': 78.70 MHz (PASS at 25.00 MHz)
-'''
-=======
-Tests:
 ```
-Info: Device utilisation:      noram/norom        32kb ram/norom    32kb ram/8kb rom
-Info: 	       TRELLIS_SLICE:  1249/12144    10%  1626/12144    13  1672/12144    13% %
-Info: 	          TRELLIS_IO:     3/  197     1%     3/  197     1     3/  197     1% %
-Info: 	                DCCA:     1/   56     1%     1/   56     1     1/   56     1% %
-Info: 	              DP16KD:     0/   56     0%     0/   56     0     4/   56     7% %
-Info: 	          MULT18X18D:     0/   28     0%     0/   28     0     0/   28     0% %
-Info: 	              ALU54B:     0/   14     0%     0/   14     0     0/   14     0% %
-Info: 	             EHXPLLL:     1/    2    50%     1/    2    50     1/    2    50% %
-Info: 	             EXTREFB:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	                DCUA:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	           PCSCLKDIV:     0/    2     0%     0/    2     0     0/    2     0% %
-Info: 	             IOLOGIC:     0/  128     0%     0/  128     0     0/  128     0% %
-Info: 	            SIOLOGIC:     0/   69     0%     0/   69     0     0/   69     0% %
-Info: 	                 GSR:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	               JTAGG:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	                OSCG:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	               SEDGA:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	                 DTR:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	             USRMCLK:     0/    1     0%     0/    1     0     0/    1     0% %
-Info: 	             CLKDIVF:     0/    4     0%     0/    4     0     0/    4     0% %
-Info: 	           ECLKSYNCB:     0/   10     0%     0/   10     0     0/   10     0% %
-Info: 	             DLLDELD:     0/    8     0%     0/    8     0     0/    8     0% %
-Info: 	              DDRDLL:     0/    4     0%     0/    4     0     0/    4     0% %
-Info: 	             DQSBUFM:     0/    8     0%     0/    8     0     0/    8     0% %
-Info: 	     TRELLIS_ECLKBUF:     0/    8     0%     0/    8     0     0/    8     0% %
-Info: 	        ECLKBRIDGECS:     0/    2     0%     0/    2     0     0/    2     0% %
-```
->>>>>>> 7418f3748ce9f630a5095edea5a4aafe25f01526
