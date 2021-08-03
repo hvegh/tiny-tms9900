@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os
 import argparse
-import pprint
 
 from migen import *
+from migen.fhdl import verilog
 from litex_boards.platforms import colorlight_5a_75b as board
 #from litex_boards.platforms import lattice_ice40up5k_evn as board
 from litex.soc.cores.clock import *
@@ -19,7 +19,7 @@ Signals:
     input  we
     input  dat_w
 """
-class sram(Module):
+class Ram(Module):
     def __init__(self, addr, re, dat_r, we, dat_w):
         assert len(dat_r) == len(dat_w), "ERROR: length of data busses must be equal"
 
@@ -30,16 +30,15 @@ class sram(Module):
         )
         p1 = self.mem.get_port(write_capable=True, has_re=True)
         self.specials += p1
-        p1.addr  = addr
+        p1.adr   = addr
         p1.re    = re
         p1.dat_r = dat_r
         p1.we    = we
         p1.dat_w = dat_w
-        self.ios = {p1.adr, p1.re, p1.dat_r, p1.we, p1.dat_w }
 
-class pll_top(Module):
+class Top(Module):
     def __init__(self, platform, sys_clk_freq):
-        self.rst = Signal()
+        self.rst        = Signal()
 
         self.addr       = Signal(16)
         self.data_out   = Signal(16)
@@ -64,33 +63,31 @@ class pll_top(Module):
         self.wr_ram     = Signal()
         self.rd_ram     = Signal()
 
-
         self.clock_domains.cd_sys    = ClockDomain()
 
         # # #
 
-        sysclk = None
         clk = platform.request(platform.default_clk_name)
-        clk_freq = 1e9/platform.default_clk_period
+        clk_freq = int(1e9/platform.default_clk_period)
 
-        if(sys_clk_freq is not None and sys_clk_freq != clk_freq):
+        if(sys_clk_freq is not None and int(sys_clk_freq) != clk_freq):
+
             print("INFO: clk freq", sys_clk_freq, "using PLL")
+
+            # rst_n = platform.request("user_btn_n", 0)
+            rst_n = 1
 
             # PLL
             self.submodules.pll = pll = ECP5PLL()
-            self.comb += pll.reset.eq(self.rst)
             pll.register_clkin(clk, clk_freq)
             pll.create_clkout(self.cd_sys, sys_clk_freq)
             sysclk = ClockSignal("sys")
         else:
+            self.comb += self.cd_sys.clk.eq(clk)
             sysclk       = clk
             sys_clk_freq = clk_freq
             print("INFO: clk freq", sys_clk_freq, "using", platform.default_clk_name)
 
-
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(platform)
-        print(type(platform))
 
         """
         TMS9900 - Microprocessor Core
@@ -139,7 +136,7 @@ class pll_top(Module):
             0x0000, size = 32 bits
             addr[0] is ignored
         """
-        assert sys_clk_freq < 64e6 and sys_clk_freq/1e6 == int(sys_clk_freq/1e6), "system clock must be integer and < 64 MHz"
+        assert sys_clk_freq < 64e6 and sys_clk_freq/1e6 == int(sys_clk_freq/1e6), "system clock must be integer number of MHz and < 64 MHz"
         self.specials += Instance("tms9902",
             p_CLK_FREQ  = int(sys_clk_freq/1e6),
             i_CLK       = sysclk,
@@ -179,7 +176,7 @@ class pll_top(Module):
             0x0000, size = 16k words (repeated 0x8000 - 0xFFFF)
             addr[0] is ignored
         """
-        self.submodules.sram = sram(
+        self.submodules.sram = Ram(
             addr    = self.addr[1:13],
             re      = self.rd_ram,
             dat_r   = self.ram_o,
@@ -188,39 +185,34 @@ class pll_top(Module):
         )
 
 def top_test(m):
-    for i in range(200):
+    for i in range(20):
         yield m.addr
         yield m.data_out
         yield m.data_in
         yield m.rd
         yield m.wr
+        yield
 
-
-    # remember: values are written after the tick, and read before the tick.
-    # wait one tick for the memory to update.
-    yield
-    # read what we have written, plus some initialization data
-    for i in range(10):
-        value = yield dut.mem[i]
-        print(value)
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Colorlight 5A-75X")
-    parser.add_argument("--clk",               default=None, type=int,     help="processor speed: 48e6 (default)")
+    parser = argparse.ArgumentParser(description="tms9900 SoC on Colorlight 5A-75X")
+    parser.add_argument("--clk",               default=None, type=int,     help="Override internal clock speed, CLK in Hz")
     parser.add_argument("--build",             action="store_true",        help="Build bitstream")
     parser.add_argument("--sim",               action="store_true",        help="Simulate toplevel design")
-    parser.add_argument("--load",              action="store_true",        help="Load bitstream")
+    #parser.add_argument("--load",              action="store_true",        help="Load bitstream")
     parser.add_argument("--revision",          default="7.0", type=str,    help="Board revision: 7.0 (default), 6.0 or 6.1")
     args = parser.parse_args()
 
     # Create our platform (fpga interface)
     #platform = board.Platform(revision=args.revision)
     platform = board.Platform()
-    #for source in "top.v tms9900.v alu9900.v tms9902.v ram.v rom.v spram.v".split(" "):
-    for source in "tms9900.v alu9900.v tms9902.v ram.v rom.v".split(" "):
+    #sources = "top.v tms9900.v alu9900.v tms9902.v ram.v rom.v spram.v"
+    #sources = "tms9900.v alu9900.v tms9902.v ram.v rom.v"
+    sources = "tms9900.v alu9900.v tms9902.v rom.v"
+    for source in sources.split(" "):
         print("INFO: adding", source)
         platform.add_source(source)
-    top = pll_top(platform, args.clk)
+    top = Top(platform, args.clk)
 
     # Build
     if(args.build):
@@ -230,6 +222,10 @@ def main():
     if(args.sim):
         run_simulation(top, top_test(top))
 
+    # Print verilog
+    if(not (args.build or args.sim)):
+        print(verilog.convert(top))
+
+
 if __name__ == "__main__":
     main()
-
